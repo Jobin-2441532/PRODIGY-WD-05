@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🌤️ Weather App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #74ebd5, #acb6e5);
+      margin: 0;
+      padding: 0;
+      text-align: center;
+      color: #333;
+    }
+
+    h1 {
+      margin-top: 20px;
+    }
+
+    .search {
+      margin: 20px;
+    }
+
+    input {
+      padding: 10px;
+      border: none;
+      border-radius: 20px;
+      width: 200px;
+    }
+
+    button {
+      padding: 10px 20px;
+      margin-left: 10px;
+      border: none;
+      border-radius: 20px;
+      background: #333;
+      color: white;
+      cursor: pointer;
+    }
+
+    .weather {
+      background: white;
+      margin: 20px auto;
+      padding: 20px;
+      border-radius: 20px;
+      max-width: 300px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    }
+
+    .temp {
+      font-size: 2em;
+      color: #ff5722;
+    }
+
+    .icon {
+      width: 100px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🌤️ Weather App</h1>
+
+  <div class="search">
+    <input type="text" id="cityInput" placeholder="Enter city">
+    <button onclick="getWeatherByCity()">Search</button>
+    <button onclick="getWeatherByLocation()">📍 Use My Location</button>
+  </div>
+
+  <div class="weather" id="weather" style="display: none;">
+    <h2 id="cityName"></h2>
+    <img id="icon" class="icon">
+    <div class="temp" id="temp"></div>
+    <p id="desc"></p>
+    <p id="humidity"></p>
+    <p id="wind"></p>
+  </div>
+
+  <script>
+    const apiKey = 'cd6bfbee318fe6136779ad26aa5bc28d'; 
+
+
+    function displayWeather(data) {
+      document.getElementById('weather').style.display = 'block';
+      document.getElementById('cityName').innerText = `${data.name}, ${data.sys.country}`;
+      document.getElementById('temp').innerText = `${Math.round(data.main.temp)}°C`;
+      document.getElementById('desc').innerText = data.weather[0].description;
+      document.getElementById('humidity').innerText = `Humidity: ${data.main.humidity}%`;
+      document.getElementById('wind').innerText = `Wind: ${data.wind.speed} m/s`;
+      document.getElementById('icon').src = `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
+    }
+
+    function getWeatherByCity() {
+      const city = document.getElementById('cityInput').value;
+      if (!city) return alert('Please enter a city name');
+      fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${apiKey}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.cod === 200) {
+            displayWeather(data);
+          } else {
+            alert('City not found!');
+          }
+        });
+    }
+
+    function getWeatherByLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(position => {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+          fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`)
+            .then(response => response.json())
+            .then(data => displayWeather(data));
+        });
+      } else {
+        alert('Geolocation is not supported by this browser.');
+      }
+    }
+  </script>
+
+</body>
+</html>
